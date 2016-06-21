@@ -20,14 +20,13 @@ import android.widget.Toast;
 import com.odoo.App;
 import com.odoo.OdooActivity;
 import com.odoo.R;
+import com.odoo.SetupActivity;
 import com.odoo.base.addons.res.ResCompany;
 import com.odoo.config.FirstLaunchConfig;
 import com.odoo.core.auth.OdooAccountManager;
-import com.odoo.core.auth.OdooAuthenticator;
 import com.odoo.core.orm.ODataRow;
 import com.odoo.core.support.OUser;
 import com.odoo.core.support.OdooInstancesSelectorDialog;
-import com.odoo.core.support.OdooUserLoginSelectorDialog;
 import com.odoo.core.utils.IntentUtils;
 import com.odoo.core.utils.OResource;
 import com.odoo.datas.OConstants;
@@ -46,10 +45,9 @@ import odoo.listeners.OdooError;
 
 public class OdooLogin extends AppCompatActivity implements View.OnClickListener,
         View.OnFocusChangeListener, OdooInstancesSelectorDialog.OnInstanceSelectListener,
-        OdooUserLoginSelectorDialog.IUserLoginSelectListener, IOdooConnectionListener, IOdooLoginCallback {
+        IOdooConnectionListener, IOdooLoginCallback {
 
     private EditText edtUsername, edtPassword, edtSelfHosted;
-    private Boolean mCreateAccountRequest = false;
     private Boolean mSelfHostedURL = false;
     private Boolean mConnectedToServer = false;
     private Boolean mAutoLogin = false;
@@ -66,23 +64,6 @@ public class OdooLogin extends AppCompatActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.base_login);
         mApp = (App) getApplicationContext();
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            if (extras.containsKey(OdooAuthenticator.KEY_NEW_ACCOUNT_REQUEST))
-                mCreateAccountRequest = true;
-            if (extras.containsKey(OdooActivity.KEY_ACCOUNT_REQUEST)) {
-                mRequestedForAccount = true;
-                setResult(RESULT_CANCELED);
-            }
-        }
-        if (!mCreateAccountRequest) {
-            if (OdooAccountManager.anyActiveUser(this)) {
-                startOdooActivity();
-                return;
-            } else if (OdooAccountManager.hasAnyAccount(this)) {
-                onRequestAccountSelect();
-            }
-        }
         init();
     }
 
@@ -97,8 +78,8 @@ public class OdooLogin extends AppCompatActivity implements View.OnClickListener
         edtSelfHosted = (EditText) findViewById(R.id.edtSelfHostedURL);
     }
 
-    private void startOdooActivity() {
-        startActivity(new Intent(this, OdooActivity.class));
+    private void startSetupActivity() {
+        startActivity(new Intent(this, SetupActivity.class));
         finish();
     }
 
@@ -267,25 +248,6 @@ public class OdooLogin extends AppCompatActivity implements View.OnClickListener
     }
 
     @Override
-    public void onUserSelected(OUser user) {
-        OdooAccountManager.login(this, user.getAndroidName());
-        startOdooActivity();
-    }
-
-    @Override
-    public void onRequestAccountSelect() {
-        OdooUserLoginSelectorDialog dialog = new OdooUserLoginSelectorDialog(this);
-        dialog.setUserLoginSelectListener(this);
-        dialog.show();
-    }
-
-    @Override
-    public void onNewAccountRequest() {
-        init();
-    }
-
-
-    @Override
     public void onConnect(Odoo odoo) {
         Log.v("Odoo", "Connected to server.");
         mOdoo = odoo;
@@ -316,10 +278,6 @@ public class OdooLogin extends AppCompatActivity implements View.OnClickListener
             edtSelfHosted.requestFocus();
         }
         canceledInstanceSelect();
-    }
-
-    @Override
-    public void onCancelSelect() {
     }
 
     @Override
@@ -464,7 +422,7 @@ public class OdooLogin extends AppCompatActivity implements View.OnClickListener
                 @Override
                 public void run() {
                     if (!mRequestedForAccount)
-                        startOdooActivity();
+                        startSetupActivity();
                     else {
                         Intent intent = new Intent();
                         intent.putExtra(OdooActivity.KEY_NEW_USER_NAME, mUser.getAndroidName());

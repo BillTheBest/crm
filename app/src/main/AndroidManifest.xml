@@ -37,7 +37,6 @@
             android:name=".core.account.OdooLogin"
             android:label="${applicationName}"
             android:screenOrientation="portrait" />
-
         <activity android:name=".addons.customers.CustomerDetails" />
         <activity android:name=".core.account.ManageAccounts" />
         <activity
@@ -230,6 +229,7 @@
         <activity
             android:name=".addons.sale.AddProductLineWizard"
             android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".SetupActivity"></activity>
     </application>
 
 </manifest>
