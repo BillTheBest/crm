@@ -29,6 +29,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:24.0.0'
     compile 'com.google.android.gms:play-services:9.0.2'
     compile 'com.android.support:design:24.0.0'
+    compile 'com.joanfuentes:HintCaseAssets:1.0.2'
     compile project(':intro-slider-lib')
     compile project(':odoo-rpc-v3')
     compile project(':calendar-lib')
